@@ -1,0 +1,678 @@
+\documentclass[10pt]{beamer}
+
+\usetheme{metropolis}
+\usepackage{appendixnumberbeamer}
+
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+\usepackage{xspace}
+
+\usepackage{algpseudocode,algorithm,algorithmicx}  
+\usepackage{subcaption}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+
+\newcommand{\alertparagraph}[1]{\textbf{{\usebeamercolor[fg]{alerted text} #1}} \ }
+\newcommand{\exampleparagraph}[1]{\textbf{{\usebeamercolor[fg]{example text} #1}} \ }
+
+\title{Policy Search}
+\subtitle{A review}
+\date{\today}
+\author{Charles Reizine, Emile Mathieu}
+\institute{Ecole des Ponts ParisTech}
+\titlegraphic{\hfill\includegraphics[height=2.5cm]{images/logo.eps}}
+
+\begin{document}
+
+\maketitle
+
+% \begin{frame}{Table of contents}
+%   \setbeamertemplate{section in toc}[sections numbered]
+%   \tableofcontents[]
+% \end{frame}
+
+\section{Problem Statement}
+
+\begin{frame}{Reinforcement Learning}
+
+\begin{alertblock}{Markov Decision Process}
+\begin{itemize}
+\item State space $\bm{x} \in \mathcal{X}$
+\item Action space $\bm{u} \in \mathcal{U}$
+\item Transition dynamics $\mathcal{P}(\bm{u_{t+1}} |\bm{x_{t}}, \bm{u_{t}})$
+\item Reward function $r(\bm{x_{t}}, \bm{u_{t}})$
+\item Initial state probabilities $\mu_o(\bm{x_{t}})$
+\end{itemize}
+\end{alertblock}
+
+\begin{alertblock}{Learning}
+Adapting the policy $\pi(\bm{u} | \bm{x})$
+\end{alertblock}
+
+\begin{alertblock}{Objective}
+Find $\pi^\star \in \arg\max_\pi J_\pi$ with $J_\pi = \mathbb{E} \left[ \sum_{t=1}^T r_t \right]$
+%$$R(\bm{\tau}) = r_T({\bm{x}}_T) + \sum_{t=1}^{T-1} r_t({\bm{x}}_t, {\bm{u}}_t)$$
+\end{alertblock}
+
+\end{frame}
+
+
+\begin{frame}{Learning Paradigms}
+
+\begin{exampleblock}{Value Function :}
+Estimate the \emph{value function} $V^\pi(\bm{x}) = \mathbb{E}_\pi [R_t | \bm{x}_t = \bm{x}]$
+or \emph{action-value function} $Q^\pi(\bm{u}, \bm{x}) = \mathbb{E}_\pi [R_t | \bm{x}_t = \bm{x},  \bm{u}_t = \bm{u}]$.
+
+Then compute the policy by action selection.
+\end{exampleblock}
+
+\begin{alertblock}{Limits}
+High dimensional or continuous problems.\\
+%Known dynamic \\
+\end{alertblock}
+
+\vspace{1em}
+\begin{exampleblock}{Policy Search :}
+Employ a parametrize policy $\pi_{\bm{\theta}}$. \\
+Iterate in the parameter space of the policy. \\
+Fit large scale, continuous problems
+\end{exampleblock}
+\begin{alertblock}{Two approaches}
+\begin{itemize}
+\item Model-based methods
+\item Model-free methods
+\end{itemize}
+
+\end{alertblock}
+
+% \textbf{Setup and issue}
+% Transition model unknown:
+% $$(x_t,u_t)\xrightarrow{?} x_{t+1}$$
+\end{frame}
+
+
+
+
+\section{Model-Free Policy Search}
+
+
+\begin{frame}{Model-Free Policy Search}
+
+\begin{alertblock}{Model-Free Policy Search}
+
+Use samples $ \mathcal{D} = \left\{ \left( \bm{x}_{1:T}^{[i]}, \bm{u}_{1:T}^{[i]}, r_{1:T}^{[i]} \right) \right\}_{i=1,\dots,N}$
+
+to directly update the policy $\pi$.
+
+\end{alertblock}
+\vspace{1em}
+\begin{exampleblock}{Pseudo code}
+
+\begin{algorithm}  [H]
+  \caption{Model free policy search
+    \label{}}  
+  \begin{algorithmic}[1]  
+    \While{\text{has not converged}}
+        \State Explore: Generate trajectories $\bm{\tau}^{[i]}$ from current policy $\pi_k$
+        \State Evaluate: Assess quality of trajectory or actions
+        \State Update: Compute new policy $\pi_{k+1}$ from trajectories and evaluations
+      \EndWhile
+  \end{algorithmic}  
+\end{algorithm}
+
+\end{exampleblock}
+
+\end{frame}
+
+%\subsection{Exploration Strategies}
+
+% \begin{frame}{Exploration Strategies}
+% \begin{alertblock}{Action space}
+% Perturb deterministic policy $\mu$ with Gaussian noise $\epsilon_t$: ${\bm{u}}_t = \mu({\bm{x}_{t}}, t) + \epsilon_u$. 
+% Hence
+% $\pi_{\bm{\theta}}({\bm{u}} | {\bm{x}}, {\bm{\theta}}) = \mathcal{N}({\bm{u}} | \mu({\bm{x}}, t), \Sigma_u)$.
+% \end{alertblock}
+
+% \begin{alertblock}{Parameter space}
+% Perturb parameter $\bm{\theta}$ at beginning of episode or each step: $\tilde{{\bm{\theta}}} = {\bm{\theta}} + \epsilon_t$.
+% \end{alertblock}
+% \vspace{1em}
+% \begin{exampleblock}{Step-based}
+% Exploration noise is used at each time step.
+% \end{exampleblock}
+
+% \begin{exampleblock}{Episode-based}
+% Exploration noise is only used at the beginning of the episode.
+% \end{exampleblock}
+
+% \end{frame}
+
+%\subsection{Evaluation Strategies}
+
+\begin{frame}{Exploration Strategies \& Evaluation Strategies}
+
+  \begin{columns}[T,onlytextwidth]
+  
+    \column{0.49\textwidth}
+        $$\text{\textbf{Episode-based}}$$
+
+        \begin{alertblock}{Explore:}
+        In parameter space at the beginning of an episode: 
+        ${\bm{\theta}}_i \sim \pi_\omega(\theta)$
+
+        \begin{itemize}
+        \item Search distribution $\pi_\omega$ over parameter space ${\bm{\theta}} \in \Theta$
+        \item Deterministic control policy: $\bm{u} = \pi_\theta(\bm{x})$
+        \end{itemize}
+
+        \end{alertblock}
+
+        \begin{exampleblock}{Evaluate:}
+        The quality of parameter ${\bm{\theta}}_i$ by the accumulated reward:
+        $R^{[i]} = \sum_{t=1}^T {r_t}$, $\mathcal{D} = \left\{ \theta_i, R^{[i]} \right\}$
+        \end{exampleblock}
+
+    \column{0.48\textwidth}
+        $$\text{\textbf{Step-based}}$$
+
+        \begin{alertblock}{Explore:}
+        In action space at each time step: $\bm{u}_t \sim \pi_{\bm{\theta}}(\bm{u} | \bm{x}_t)$
+
+        \begin{itemize}
+        \item Stochastic control policy
+        \end{itemize}
+
+        \end{alertblock}
+
+        \begin{exampleblock}{Evaluate:}
+        The quality of state-action pairs $(\bm{x}_t^{[i]}, \bm{u}_t^{[i]})$ by rewards to come: 
+        
+        $Q^{[i]}_t = \sum_{h=t}^T { r_h({\bm{x}}_h, {\bm{u}}_h) }$
+
+        $\mathcal{D} = \left\{ \bm{x}_t^{[i]}, \bm{u}_t^{[i]}, Q_t^{[i]} \right\}$
+        \end{exampleblock}
+
+\end{columns}
+
+\end{frame}
+
+
+%\subsection{Policy Update Strategies}
+
+\begin{frame}{Policy Update Strategies}
+
+\begin{alertblock}{Policy gradients methods}
+\end{alertblock}
+\vspace{3em}
+\begin{alertblock}{Expectation-maximization based methods}
+\end{alertblock}
+\vspace{3em}
+\begin{alertblock}{Information theoretical approaches}
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}{Policy Gradient}
+
+Optimize average return $J_{\bm{\theta}}$ by \textbf{gradient ascent}.
+\vspace{1em}
+
+\begin{alertblock}{Compute gradient from samples}
+$$\nabla_{\bm{\theta}} J_{\bm{\theta}}
+ = \nabla_{\bm{\theta}} \int_{\bm{\tau}} p_{\bm{\theta}}({\bm{\tau}}) R({\bm{\tau}}) d{\bm{\tau}}
+ = \int_{\bm{\tau}} \nabla_{\bm{\theta}} p_{\bm{\theta}}({\bm{\tau}}) R({\bm{\tau}}) d{\bm{\tau}} $$
+
+$$
+ \nabla_{\bm{\omega}} J_{\bm{\omega}}
+ = 
+ \nabla_{\bm{\omega}} \int_{\bm{\theta}} \pi_{\bm{\omega}}(\bm{\theta}) 
+ \int_{\bm{\tau}} p_{\bm{\theta}}({\bm{\tau}}) R({\bm{\tau}}) d{\bm{\tau}} d{\bm{\theta}} 
+ = 
+ \int_{\bm{\theta}} \nabla_{\bm{\omega}} \pi_{\bm{\omega}}(\bm{\theta}) 
+ \int_{\bm{\tau}} p_{\bm{\theta}}({\bm{\tau}}) R({\bm{\tau}}) d{\bm{\tau}} d{\bm{\theta}}
+ $$
+\end{alertblock}
+
+\begin{alertblock}{Update control policy parameter}
+ $${\bm{\theta}}_{k+1} = {\bm{\theta}}_k + \alpha_k \nabla_{\bm{\theta}} J_{\bm{\theta}} $$
+$$ \text{or} \ \
+{\bm{\omega}}_{k+1} = {\bm{\omega}}_k + \alpha_k \nabla_{\bm{\omega}} J_{\bm{\omega}} $$
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}{Finite Differences}
+
+\begin{alertblock}{Small perturbation}
+
+${\bm{\theta}}_k + \delta {\bm{\theta}} \leftarrow {\bm{\theta}}_k $
+
+Change of returns: $\delta R^{[i]} = R({\bm{\theta}}_k + \delta {\bm{\theta}}^{[i]}) - R({\bm{\theta}}_k)$
+
+Construct $\delta {\bm{\theta}} = {[ \delta {\bm{\theta}}^{[1]}, \dots, \delta {\bm{\theta}}^{[N]} ]}^T$ and $\delta R = {[ \delta R^{[1]}, \dots, \delta R^{[N]} ]}^T$.
+
+\end{alertblock}
+\vspace{1em}
+\begin{exampleblock}{Gradient approximation}
+Using a first-order Taylor approximation and solving $\nabla^{FD}_{\bm{\theta}} J_{\bm{\theta}}$ in the least-square sense yields:
+
+$$ \nabla^{\textrm{FD}}_{\bm{\theta}} J_{\bm{\theta}} = {(\delta {\bm{\theta}}^T  \delta {\bm{\theta}})}^{-1} \delta {\bm{\theta}}^T \delta R $$
+
+\end{exampleblock}
+
+\end{frame}
+
+\begin{frame}{Likelihood-Ratio Policy Gradients}
+
+Injecting the \textit{{\usebeamercolor[fg]{example text} likelihood ratio}} trick $\nabla p_{\bm{\theta}}(y) = p_{\bm{\theta}}(y) \nabla \log p_{\bm{\theta}}(y)$ into $\nabla_{\bm{\theta}} J_{\bm{\theta}} $ gives:
+\begin{eqnarray*}
+\nabla_{\bm{\theta}} J_{\bm{\theta}} &=& 
+\int_{\bm{\tau}} p_{\bm{\theta}}(y) \nabla \log p_{\bm{\theta}}(y) R({\bm{\tau}}) d{\bm{\tau}} = 
+\mathbb{E}_{p_{\bm{\theta}}({\bm{\tau}})}[ \nabla_{\bm{\theta}} \log p_{\bm{\theta}}({\bm{\tau}})  R({\bm{\tau}})] \\ &\simeq&  \frac{1}{N} \sum_{i=1}^N \nabla_{\bm{\theta}} \log p_{\bm{\theta}}({\bm{\tau}}^{[i]})  R({\bm{\tau}}^{[i]})
+\end{eqnarray*}
+
+For a stochastic policy: $ p_{\bm{\theta}}({\bm{\tau}}) = p({\bm{x}}_1) \prod_{t=1}^T p({\bm{x}}_{t+1} | {\bm{x}}_t) \pi_{\bm{\theta}}({\bm{u}}_t | {\bm{x}}_t, t)$
+
+Hence $ \nabla_{\bm{\theta}} \log p_{\bm{\theta}}({\bm{\tau}}) = \sum_{t=0}^{T-1} \nabla_{\bm{\theta}} \log \pi_{\bm{\theta}}({\bm{u}}_t | {\bm{x}}_t, t) $
+
+The {\usebeamercolor[fg]{example text} REINFORCE} algorithm uses the policy gradient:
+$$\nabla^{\textrm{RF}}_{\bm{\theta}} J_{\bm{\theta}} 
+= \frac{1}{N} \sum_{i=1}^N \sum_{t=0}^{T-1} \nabla_{\bm{\theta}} \log \pi_{\bm{\theta}}({\bm{u}}_t^{[i]} | {\bm{x}}_t^{[i]}, t)   R({\bm{\tau}}^{[i]})$$
+%\begin{eqnarray*}
+%&=& \mathbb{E}_{p_{\bm{\theta}}({\bm{\tau}})}[\sum_{t=0}^{T-1}  \nabla_{\bm{\theta}} \log \pi_{\bm{\theta}}({\bm{u}}_t| {\bm{x}}_t, t)  R({\bm{\tau}})] \\
+%&\simeq&  
+
+%\end{eqnarray*}
+
+\end{frame}
+
+\begin{frame}{Natural Policy Gradient}
+
+\alertparagraph{Objective:}
+Achieve a more stable behaviour of the learning process.
+
+\alertparagraph{Idea:}
+Maintain a limited step-width in the trajectory distribution space, enforced by the constraint:
+$$ KL(p_{\bm{\theta}}({\bm{\tau}}) || p_{{\bm{\theta}} + \delta {\bm{\theta}}} ({\bm{\tau}}) ) \simeq \delta {\bm{\theta}}^T F_{\bm{\theta}} \delta {\bm{\theta}} \le \epsilon $$
+
+\alertparagraph{Optimization program:}
+$$ \delta {\bm{\theta}}^{NG} = \arg\max_{\delta {\bm{\theta}}} \delta {\bm{\theta}}^T \delta {\bm{\theta}}^{VG} \quad \text{s.t.} \quad \delta {\bm{\theta}}^T F_{\bm{\theta}} \delta {\bm{\theta}} \le \epsilon $$
+
+\exampleparagraph{Solution:} $\delta {\bm{\theta}}^{NG} \propto F_{\bm{\theta}}^{-1} \delta{\bm{\theta}}^{VG} $
+
+\exampleparagraph{Natural policy gradient:}
+$$ \nabla^{NG}_{\bm{\theta}} J_{\bm{\theta}} = F_{\bm{\theta}}^{-1} \nabla_{\bm{\theta}} J_{\bm{\theta}} $$
+
+\end{frame}
+
+\begin{frame}{Guided Policy Search}
+
+\alertparagraph{Issue:}
+New trajectories $\bm{\tau}^{[i]}$ are required at each gradient step to compute:
+$\mathbb{E}[\nabla_{\bm{\theta}} J_{\bm{\theta}}] \simeq  \frac{1}{N} \sum_{i=1}^N \nabla_{\bm{\theta}} \log p_{\bm{\theta}}({\bm{\tau}}^{[i]})  R({\bm{\tau}}^{[i]})$
+
+\exampleparagraph{Importance Sampling:} $\mathbb{E}[J_{\bm{\theta}}] \simeq \frac{1}{Z(\bm{\theta})} \sum_{i=1}^N \frac{\pi_{\bm{\theta}}(\bm{\tau}^{[i]})}{q(\bm{\tau}^{[i]})} R(\bm{\tau}^{[i]})$, with $\bm{\tau}^{[i]} \sim q$.
+% Allows using off-policy samples
+
+$q$ can be a previous policy, or a guiding distribution constructed with differential dynamic programming (DDP).
+
+\alertparagraph{LQR algorithm:} Iteratively optimize a trajectory, with linear reward and quadratic dynamics approximations.
+
+$f$ and $r$ estimated by finite differences.
+
+Yields a deterministic policy: $\bm{u}_t = g(\bm{x}_t)$.
+
+\exampleparagraph{Stochastic policy:}
+$q(\bm{u}_t | \bm{x}_t) = \mathcal{N}(\bm{u}_t | g(\bm{x}_t), \Sigma)$
+
+\end{frame}
+
+
+% \begin{frame}{Expectation Maximization}
+
+% \end{frame}
+
+\begin{frame}{Expectation Maximization for policy search}
+
+% \begin{wrapfigure}{r}{0.30\textwidth}
+%   \begin{center}
+%     \includegraphics[width=0.25\textwidth]{images/policy_search_EM_graphical_model.png}
+%   \end{center}
+%   \caption{Graphical model}% for inference-based policy search.}
+%   \label{em_graphical_model}
+% \end{wrapfigure}
+
+\alertparagraph{Observed variable:}
+Binary reward event given by $p(R = 1 | \bm{\tau}) = p(R | \bm{\tau})$, defined from a transformation of $R(\bm{\tau})$.
+
+\alertparagraph{Latent variable:}
+Trajectory ${\bm{\tau}}$.
+
+
+We want to find the maximum solution ${\bm{\theta}}^\star$ for the log marginal-likelihood:
+$$ \log p_{\bm{\theta}}(R) = \int_{\bm{\tau}} p(R | {\bm{\tau}}) p_{\bm{\theta}}({\bm{\tau}}) d{\bm{\tau}} $$
+
+\exampleparagraph{M-Step:}
+Yields closed form solution for parameters, for most common policies.
+
+\exampleparagraph{E-Step:}
+Cannot be computed exactly: approximations are needed.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=.07]{images/policy_search_EM_graphical_model.png} 
+\end{center}
+\caption{Graphical model for inference-based policy search.}
+\label{}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}{E-Step approximation}
+
+\begin{alertblock}{Monte-Carlo EM-based Policy Search}
+
+Sample based approximation for the auxiliary distribution $q$:
+$$q(\bm{\tau}) \simeq p(\bm{\tau}|R) \propto p(R | \bm{\tau}) p_{\bm{\theta}'}(\bm{\tau})$$
+
+Since $\bm{\tau}^{[i]} \sim p_{\bm{\theta}'}(\bm{\tau})$:  $q(\bm{\tau}^{[i]}) \propto p(R | \bm{\tau}^{[i]})$
+
+Expected complete log-likelihood:
+$$\mathcal{Q}_{\bm{\theta}}(\bm{\theta}') \simeq \sum_{\bm{\tau}^{[i]} \sim p_{\bm{\theta}'}(\bm{\tau})} p(R | \bm{\tau}^{[i]}) \log p_{\bm{\theta}}(\bm{\tau}^{[i]}) $$
+\end{alertblock}
+\vspace{-1em}
+\begin{alertblock}{Variational Inference-based Policy Search}
+
+Use a parametrized auxiliary distribution $q_\beta$.
+\begin{eqnarray*}
+\beta &\in& \arg\min_\beta KL(q_{\beta}({\bm{\tau}}) || p(R | {\bm{\tau}}) p_{\bm{\theta}}({\bm{\tau}})) \\
+&\in& \arg\min_\beta \sum_{{\bm{\tau}}^{[i]}} q_{\beta}({\bm{\tau}}^{[i]}) \log \frac{q_{\beta}({\bm{\tau}}^{[i]})} { p(R | {\bm{\tau}}^{[i]}) p_{\bm{\theta}}({\bm{\tau}}^{[i]})}
+\end{eqnarray*}
+
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}{Information Theoretical Approaches}
+
+\begin{exampleblock}{Main idea:}
+The trajectory distribution after the policy update should not be far from the trajectory distribution before the policy update.
+\end{exampleblock}
+
+\begin{alertblock}{Relative Entropy Policy Search (REPS):}
+
+\begin{equation*}
+\begin{aligned}
+& \underset{\pi}{\text{maximize}}
+& & \int \pi({\bm{\theta}}) R({\bm{\theta}}) d{\bm{\theta}} \\
+& \text{subject to}
+& & \pi({\bm{\theta}}) \log \frac{\pi({\bm{\theta}})}{q({\bm{\theta}})} \le  \epsilon \\
+& & & \int \pi({\bm{\theta}}) d{\bm{\theta}} = 1  \\
+\end{aligned}
+\end{equation*}
+
+\end{alertblock}
+
+\textbf{Solution via Lagrangian:} $\pi({\bm{\theta}}) \propto q({\bm{\theta}}) \exp(\frac{R({\bm{\theta}})}{\eta})$.
+
+\end{frame}
+
+
+
+\section{Model-based Policy Learning}
+
+\begin{frame}[fragile]{General Setup 1}
+
+\begin{alertblock}{Objective:}
+
+
+$$ 
+{\pi}_{\theta}^{*} \in  \underset {\pi}{\text{arg max} { J }_{ \theta  } }  =  \underset { \pi  }{  \text{arg max} } \sum _{ t=1 }^{ T }{ { \gamma  }^{ t }\mathbb{E}[ r({ \bm{x} }_{ t },{ \bm{u} }_{ t }) | { \pi  }_{ \theta  }]  }, \quad \gamma \in [0,1] \quad  (1)
+$$
+\end{alertblock}
+
+\begin{exampleblock}{Assumption:}
+$$
+ \bm{x}_{t+1}=f(\bm{x}_{t},\bm{u}_{t}) +\bm{w} 
+$$
+
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}{General Setup 2}
+
+\begin{exampleblock}{Hypothesis :}
+
+The model is easier to learn than the policy.
+\end{exampleblock}
+\begin{alertblock}{Interest of this approach :}
+\end{alertblock}
+Enable complex policy learning using computer simulation.
+
+\textbf{Pipeline :}
+\begin{itemize}
+  \item Generate trajectories
+  
+  \item Use measurements to update model
+ 
+  \item Use model to update policy
+  
+  \item Use policy to return to first step
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Learning a model : Locally Weighted Bayesian Regression }
+\begin{exampleblock}{Locally:}
+$$\bm{x}_{t+1}= [\bm{x}_{t},\bm{u}_{t}]^T \psi + \bm{w}$$
+
+Using Bayes' theorem: 
+%$$p(\bm{\psi} |X,U,y)\quad \propto \quad p(\bm{\psi})p(y|X,U,\bm{\psi})$$
+$$
+\mathbb{E} [ \bm{\psi}| \widetilde{X},\bm{y} ] =S \widetilde{X}B \bm{\Omega}^{-1}y $$
+$$
+\text{cov}(\bm{\psi}| \widetilde{X},\bm{y}) =S -S^T\widetilde{X}B\bm{\Omega}^{-1}B\widetilde{X}^TS
+$$
+where $\widetilde{X}=[X,U]$, $\bm{\Omega} =B\widetilde{X}^TS\widetilde{X}B+\bm{\Sigma}_w$ and $B=diag(b_i)$.
+\end{exampleblock}
+
+\begin{alertblock}{Finally :}
+
+
+$$
+\bm{\mu_{x}}^{t+1}=[\bm{x}_t,\bm{u}_t]^T\mathbb{E} [ \bm{\psi}| \widetilde{X},\bm{y}]
+$$ 
+$$
+ \bm{\Sigma}_{\bm{x}}^{t+1}=[\bm{x}_t,\bm{u}_t]^T\text{cov} [ \psi| \widetilde{X},\bm{y}][\bm{x}_t,\bm{u}_t]
+$$
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Learning a model : Gaussian Process Regression }
+
+\begin{exampleblock}{Gaussian prior characteristics :} 
+$$
+m=0
+$$
+$$
+k({\widetilde { \bm{x} }}_{ p } , { \widetilde {\bm{x}} }_{ q })={ \sigma  }_{ f }^{ 2 }\text{exp}(-\frac { 1 }{ 2 } ({ \widetilde {\bm{x}} }_{ p } -{\widetilde {\bm{ x}} }_{ q }) ^{ T }{ \Lambda  }^{ -1 }({ \widetilde {\bm{x}} }_{ p }  - \widetilde {\bm{x} }_{ q }) ) +{ \delta  }_{ pq }{ \sigma  }_{ w }^{ 2 }
+$$
+\end{exampleblock}
+\begin{alertblock}{Prediction :}
+ $\bm{x}_{t+1}$ is Gaussian distributed : 
+$$
+p({ \bm{x} }_{ t+1 }|{\bm{ x} }_{ t },{ \bm{u} }_{ t })=\mathcal{ N }({ \bm{x} }_{ t+1 }|{ \bm{\mu}  }_{ t+1 }^{ x },{ \bm{\Sigma}  }_{ t+1 }^{ x })
+$$
+where $${ \bm{\mu}  }_{ t+1 }^{ x }= {\mathbb{E}}_{f}[f(\bm{x}_t,\bm{u}_t)]= \bm{k}_{*}^{T}\bm{K}^{-1}\bm{y}$$ 
+$${\bm{\Sigma}  }_{ t+1 }^{ x }={var}_{f}[f(\bm{x}_t,\bm{u}_t)]=k_{**}-\bm{k}_{*}^{T}\bm{K}^{-1}\bm{k}_{*}$$
+with $\bm{k_*}:=k(\widetilde{\bm{X}},\widetilde{\bm{x}}_t), k_{**}=k(\widetilde{\bm{x}}_t,\widetilde{\bm{x}}_t)$ and $\bm{K}$ is the kernel matrix with entries $\bm{K}_{ij}= k(\widetilde{\bm{x}}_i,\widetilde{\bm{x}}_j)$.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Quality of a Policy given a model 1}
+\begin{exampleblock}{How to estimate :}
+$$
+{ J }_{ \theta  }=\sum _{ t=0 }^{ T }{ { \gamma  }^{ t }\mathbb{E}  } [ r({ \bm{x} }_{ t }) | { \pi  }_{ \theta  }]  
+$$
+\end{exampleblock}
+\textbf{Approach based on sampling : }\\
+PEGASUS (Policy Evaluation-of-Goodness And Search Using Scenarios)\\
+
+\textbf{Deterministic approaches : }\\
+Assumption :
+$$
+p(\bm{x}_{t},\bm{u}_{t})= \mathcal{N}([ { \bm{x} }_{ t },{ \bm{u} }_{ t }] |{ \bm{\mu}  }_{ t }^{ xu },{ \bm{\Sigma}  }_{ t }^{ xu })
+$$
+Problem to solve :
+$$
+p({ \bm{x} }_{ t+1 })=\iiint { p({ \bm{x} }_{ t+1 }| } {\bm{ x} }_{ t },{ \bm{u} }_{ t })p({ \bm{x} }_{ t },{ \bm{u} }_{ t })d{\bm{ x} }_{ t }d{ \bm{u} }_{ t }d{ \bm{w} }_{ t }
+$$
+where $\bm{x}_{t+1} =f(\bm{x}_{t},\bm{u}_{t}) +\bm{w}$ with f a non parametric functions. 
+
+\begin{alertblock}{Hard to solve}
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Quality of a Policy given a model 2 }
+\begin{exampleblock}{Hypothesis}
+$$
+\mathcal{N}(\bm{x}_{t+1}|\bm{\mu}_{t+1}^{x},\bm{\Sigma}_{t+1}^{x})
+$$
+\end{exampleblock}
+\begin{alertblock}{How to estimate the predicted distribution parameters? }
+\end{alertblock}
+
+\textbf{Moment Matching}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=.20]{images/MomentMatching.png} 
+\end{center}
+\caption{Moment Matching process}
+\label{}
+\end{figure}
+\begin{exampleblock}{Best unimodal distribution}
+\end{exampleblock}
+
+\begin{alertblock}{Hard to compute}
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}{Quality of a Policy given a model 3 }
+
+\begin{exampleblock}{Approximations}
+\end{exampleblock}
+\begin{columns}[T,onlytextwidth]
+\column{0.49\textwidth}
+\textbf{Linearization}\\
+Locally approximate $f$ around $(\bm{\mu}_{t}^{x},\bm{\mu}_{t}^{u})$. 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=.18]{images/Linearisation.png} 
+\end{center}
+\caption{Linearisation Process}
+\label{}
+\end{figure}
+
+
+\column{0.49\textwidth}
+\textbf{Sigma Points}\\
+Approximate $p(\bm{x}_t,\bm{u}_t)$ by a finite number of points. 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=.192]{images/SigmaPoint.png} 
+\end{center}
+\caption{Sigma Point Process}
+\label{}
+\end{figure}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]{Policy Update}
+\begin{exampleblock}{No gradient information}
+Heuristics such as Nelder-Mead (simplex) or hill-climbing methods (simulated annealing) can be used.
+\end{exampleblock}
+
+\begin{exampleblock}{With gradient information}
+Gradient descent or other popular optimization approach.
+\end{exampleblock}
+\begin{alertblock}{How to estimate $d{ J }_{ \theta  }(\theta )/{ d }_{ \theta  }$?}
+\end{alertblock}
+
+\textbf{Estimation using finite difference}
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Policy Update }
+\textbf{Analytic policy gradient}
+\begin{exampleblock}{Advantage}
+Exact computation of the gradient. 
+\end{exampleblock}
+\textbf{Deterministic model}
+$$\bm{x}_{t+1} = f(\bm{x}_t, \bm{u}_t)=f(\bm{x}_t, \pi_{\theta}(\bm{x}_{t},\bm{\theta})).
+$$
+$$J_{\theta}= \sum _{ t }^{   }{ { \gamma  }^{ t }r(\bm{x}_{t}) }$$
+
+$$
+\frac {\text{d} J_{\bm{\theta}}  }{\text{d}\bm{\theta}  }=\sum _{ t }^{   }{ { \gamma  }^{ t }\text{d}r(\bm{x}_{t}) }=\sum _{ t }^{   }{ { \gamma  }^{ t }\frac{\partial r(\bm{x}_t)}{\partial \bm{x}_t}\frac{\text{d}\bm{x}_t}{\text{d}\bm{\theta}} }
+$$
+Using the chain-rule we find that: 
+$$ 
+\frac{\text{d}\bm{x}_t}{\text{d}\bm{\theta}} =\frac{\text{d}\bm{x}_{t-1}}{\text{d}\bm{\theta}} \frac{\partial \bm{x}_{t}}{\partial\bm{x}_{t-1}} +\frac{\text{d}\bm{u}_{t-1}}{\text{d}\bm{\theta}} \frac{\partial \bm{x}_{t}}{\partial\bm{u}_{t-1}}
+$$
+\textbf{Stochastic model}\\
+Same with $\mathbb{E}[r(x_t)]$ using $\widetilde{p}(\bm{x}_t)$ is known.
+\end{frame}
+
+%\begin{frame}[fragile]{Policy Update }
+%\textbf{Stochastic model}
+
+%\begin{exampleblock}{Hypothesis}
+%$p(\bm{x}_t)$ is known.
+%\end{exampleblock}
+%\begin{exampleblock}{Example:}
+%$ p(\bm{x}_t)= \mathcal{N}(\bm{\mu}_{t}^{x},\bm{\Sigma}_{t}^{x})$. 
+%\Rightarrow
+%\\
+%$$ 
+%\frac{\text{d}\bm{\mu}_t^x}{\text{d}\bm{\theta}} =\frac{\text{d}\bm{\mu}_{t-1}^x}{\text{d}\bm{\theta}} \frac{\partial %\bm{\mu}_{t}^x}{\partial\bm{\mu}_{t-1}^x} +\frac{\text{d}\bm{\Sigma}_{t-1}^x}{\text{d}\bm{\theta}} \frac{\partial %\bm{\mu}_{t}^x}{\partial\bm{\Sigma}_{t-1}^x}+\frac{\partial \bm{\mu}_t^x}{\partial\bm{\theta}}
+%$$
+
+%$$ 
+%\frac{\text{d}\bm{\mu}_t^x}{\text{d}\bm{\theta}} =\frac{\text{d}\bm{\Sigma}_{t-1}^x}{\text{d}\bm{\theta}} \frac{\partial %\bm{\Sigma}_{t}^x}{\partial\bm{\mu}_{t-1}^x} +\frac{\text{d}\bm{\Sigma}_{t-1}^x}{\text{d}\bm{\theta}} \frac{\partial %\bm{\Sigma}_{t}^x}{\partial\bm{\Sigma}_{t-1}^x}+\frac{\partial \bm{\Sigma}_t^x}{\partial\bm{\theta}}
+%$$
+
+
+%\end{exampleblock}
+%\end{frame}
+
+
+\section{Conclusion}
+
+
+
+
+\begin{frame}[standout]
+ Thank you for your attention ! \\
+ \vspace{3em}
+  Questions?
+\end{frame}
+
+%\begin{frame}[allowframebreaks]{References}
+%
+%  \bibliography{ref}
+%  \bibliographystyle{siam}
+%  \nocite{*}
+%\end{frame}
+
+
+\end{document}
