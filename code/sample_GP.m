@@ -1,6 +1,6 @@
 function [ seq ] = sample_GP( x, sigma, xc, nb )
-%SAMPLE_GP Summary of this function goes here
-%   Detailed explanation goes here
+% Use fft to sample Gaussian processes
+
 N = size(x, 1);
 seq = zeros(nb, N);
 R = sigma^2 * exp(-x.^2/xc^2)';
