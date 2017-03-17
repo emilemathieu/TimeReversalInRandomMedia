@@ -23,33 +23,34 @@ mirror = exp(-x.^2/rM^2); % Gaussian mirror profile
 
 %%% split-step Fourier method
 nb_GP = round(L / zc) + 1; % Number of Gaussian processes
-nb_MC = 100; % Number of profiles to be averaged
+nb_MC = 1; % Number of profiles to be averaged
 U_L = zeros(nb_MC, N); % Transmitted wave profile
-U_0_rand = zeros(nb_MC, N); % Refocused wave profile random medium
-U_0_homo = zeros(nb_MC, N); % Refocused wave profile homogeneous medium
+%U_0_rand = zeros(nb_MC, N); % Refocused wave profile random medium
+%U_0_homo = zeros(nb_MC, N); % Refocused wave profile homogeneous medium
 for i = 1:nb_MC
-    GP_seq = sample_GP(x, sigma, xc, nb_GP);
+    %GP_seq = sample_GP(x, sigma, xc, nb_GP);
     
     % Go forward in random medium
-    U_L(i,:) = split_step_fourier_method(0, 1, round(L/h), u0, h, k, GP_seq)';
+    U_L(i,:) = split_step_fourier_method(0, 1, round(L/h), u0, h, k, n);%, GP_seq)';
     
     % Go reverse in same random medium
-    u = conj(U_L(i,:)') .* mirror;
-    U_0_rand(i,:) = split_step_fourier_method(round(L/h), -1, 0, u, h, k, GP_seq)';
+    %u = conj(U_L(i,:)') .* mirror;
+    %U_0_rand(i,:) = split_step_fourier_method(round(L/h), -1, 0, u, h, k, GP_seq)';
     
     % Go reverse in homogeneous medium
-    u = conj(U_L(i,:)') .* mirror;
-    U_0_homo(i,:) = split_step_fourier_method(round(L/h), -1, 0, u, h, k)';
+    %u = conj(U_L(i,:)') .* mirror;
+    %U_0_homo(i,:) = split_step_fourier_method(round(L/h), -1, 0, u, h, k)';
 end
 U_L = mean(U_L, 1)';
-U_0_rand = mean(U_0_rand, 1)';
-U_0_homo = mean(U_0_homo, 1)';
+%U_0_rand = mean(U_0_rand, 1)';
+%U_0_homo = mean(U_0_homo, 1)';
 
-%% Mean transmitted wave profile
-rt = r0*sqrt(1 + 2*1i*L/k/r0^2);
+%%% Mean transmitted wave profile
+rt = r0*sqrt(1 + 2*1i*L/(k*r0^2));
 gamma0 = sigma^2*zc;
-mean_wave_L = r0/rt * exp(-x.^2/rt^2) * exp(-gamma0*omega^2*L/8);
-figure(1); plot(x, abs(U_L), x,abs(mean_wave_L))
+%mean_wave_L = r0/rt * exp(-x.^2/rt^2) * exp(-gamma0*omega^2*L/8);
+mean_wave_L = r0/rt * exp(-x.^2/rt^2);
+figure(1); plot(x, real(U_L), x,real(mean_wave_L))
 legend('empirical','theoretical')
 title('Mean transmitted wave profile in random medium')
 
