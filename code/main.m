@@ -187,7 +187,6 @@ ra_square = 48/(L*gamma2*w^2);
 mean_wave_0_rand = 1/atr * exp(-x.^2/rtr_square) .* exp(-x.^2/ra_square);
 
 figure(7); 
-%plot(x, abs(mean_wave_0_rand), x, abs(U_0_w));
 plot(x, abs(mean_wave_0_rand), x, U_0_w_samples);
 xlabel('x'); ylabel('|\bf{E}[\phi_t^{tr}(x)]|');
 legend('theoretical')
